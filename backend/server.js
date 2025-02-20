@@ -8,7 +8,8 @@ const creditRoutes = require("./routes/creditRoutes");
 const scanRoutes = require("./routes/scanRoutes");
 const cron = require("node-cron");
 const { resetDailyCredits } = require("./utils/creditScheduler");
-
+const adminRoutes = require("./routes/adminRoutes");
+const documentRoutes = require("./routes/documentRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -32,6 +33,10 @@ app.use("/auth", authRoutes);
 app.use("/protected", protectedRoutes);
 app.use("/credits", creditRoutes);
 app.use("/api", scanRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/scan", scanRoutes);
+app.use("/api/documents", documentRoutes); 
+// for /documents/match need to first login and given respective token than only it wil work
 
 app.get("/", (req, res) => {
   // This text will display on web screen to show that server is running
