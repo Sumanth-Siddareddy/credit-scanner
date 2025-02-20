@@ -1,14 +1,13 @@
 const express = require("express");
+const dotenv = require("dotenv");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { body, validationResult } = require("express-validator");
-const sqlite3 = require("sqlite3").verbose();
 const { promisify } = require("util");
-const dotenv = require("dotenv");
+const db = require("../config/database");
+const { body, validationResult } = require("express-validator");
 
 dotenv.config();
 const router = express.Router();
-const db = require("../config/database")
 
 // Convert db methods to return Promises
 const runQuery = promisify(db.run).bind(db);
