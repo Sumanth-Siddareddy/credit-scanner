@@ -19,6 +19,8 @@ app.use(express.json());
 // Routes
 app.use("/auth", authRoutes);
 app.use("/protected", protectedRoutes);
+app.use("/credits", creditRoutes);
+app.use("/scan", scanRoutes);
 
 app.get("/", (req, res) => {
   // This text will display on web screen to show that server is running
