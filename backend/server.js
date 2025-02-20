@@ -6,6 +6,9 @@ const authRoutes = require("./routes/authRoutes");
 const protectedRoutes = require("./routes/protected");
 const creditRoutes = require("./routes/creditRoutes");
 const scanRoutes = require("./routes/scanRoutes");
+const cron = require("node-cron");
+const { resetDailyCredits } = require("./utils/creditScheduler");
+
 
 // Load environment variables
 dotenv.config();
@@ -17,6 +20,12 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Schedule the credit reset job (Runs every day at 12:00 AM)
+cron.schedule("0 0 * * *", () => {
+  console.log("Running daily credit reset job...");
+  resetDailyCredits();
+});
 
 // Routes
 app.use("/auth", authRoutes);

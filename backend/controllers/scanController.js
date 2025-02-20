@@ -1,5 +1,6 @@
 const fs = require("fs");
 const { promisify } = require("util");
+const mammoth = require("mammoth");
 const pdfParse = require("pdf-parse"); // PDF text extraction
 const Tesseract = require("tesseract.js"); // OCR - Optical Character Recognition
 const db = require("../config/database");
@@ -7,6 +8,12 @@ const { deductCredits } = require("./creditController"); // Import credit deduct
 
 const getQuery = promisify(db.get).bind(db);
 const insertQuery = promisify(db.run).bind(db);
+
+// Function to extract text from Docs
+const extractTextFromDOCX = async (filePath) => {
+    const { value } = await mammoth.extractRawText({ path: filePath });
+    return value;
+};
 
 // Function to extract text from PDFs
 const extractTextFromPDF = async (filePath) => {
@@ -44,9 +51,11 @@ const scanDocument = async (req, res) => {
 
         // Get user details and check credits
         const user = await getQuery("SELECT * FROM users WHERE id = ?", [req.user.id]);
-        if (!user || user.credits < 1) {
+        if (user.role === "admin") {
+            console.log("Admin scanning - skipping credit deduction.");
+        } else if (!user || user.credits < 1) {
             return res.status(400).json({ error: "Insufficient credits. Please request more credits." });
-        }
+        }        
 
         const filePath = req.file.path;
         const fileExtension = req.file.originalname.split(".").pop().toLowerCase();
@@ -57,12 +66,15 @@ const scanDocument = async (req, res) => {
 
         // Choose extraction method based on file type
         if (fileExtension === "pdf") {
-            // console.log("Processing PDF file...");
             extractedText = await extractTextFromPDF(filePath);
-        } else {
-            // console.log("Processing image file...");
+        } else if (fileExtension === "jpg" || fileExtension === "png") {
             extractedText = await extractTextFromImage(filePath);
+        } else if (fileExtension === "docx") {
+            extractedText = await extractTextFromDOCX(filePath);
+        } else {
+            return res.status(400).json({ error:{fileExtension} +' is unsupported file type for this application. Try pdf, jpg, png, docx filetypes.' });
         }
+        
         
         // Insert the extracted text into the database
         await insertQuery("INSERT INTO scans (user_id, filename, extracted_text) VALUES (?, ?, ?)", 
