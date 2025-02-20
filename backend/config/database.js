@@ -16,6 +16,6 @@ db.all("SELECT name FROM sqlite_master WHERE type='table'", [], (err, rows) => {
     console.log("Tables in database:", rows.map(row => row.name));
 });
   
-db.close();
+// db.close(); - this will terminate the connection while connecting with server and request to send / get data
 
 module.exports = db;

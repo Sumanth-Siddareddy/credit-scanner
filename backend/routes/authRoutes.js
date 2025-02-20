@@ -8,7 +8,7 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 const router = express.Router();
-const db = new sqlite3.Database("./database.sqlite");
+const db = require("../config/database")
 
 // Convert db methods to return Promises
 const runQuery = promisify(db.run).bind(db);
@@ -33,7 +33,7 @@ router.post(
       const { username, password, role } = req.body;
 
       // Check if the username already exists
-      const existingUser = await getQuery("SELECT * FROM users WHERE username = ?", [username]);
+      const existingUser = await getQuery("SELECT * FROM users WHERE username = $1", [username]);
       if (existingUser) {
         return res.status(400).json({ error: "Username already exists" });
       }
