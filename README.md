@@ -1,5 +1,4 @@
 # Day 1-2 : Project setup
-<<<<<<< HEAD
 1. Install NodeJs and SQLite and setup
 2. Create a project folder & intialize with - npm init -y
 3. Install required packages npm install express sqlite3 bcryptjs jsonwebtoken multer cors dotenv
