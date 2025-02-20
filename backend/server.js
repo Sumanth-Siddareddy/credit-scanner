@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 const authRoutes = require("./routes/authRoutes");
 const protectedRoutes = require("./routes/protected");
 const creditRoutes = require("./routes/creditRoutes");
-const scanRoutes = require("./routes/scanROutes");
+const scanRoutes = require("./routes/scanRoutes");
 
 // Load environment variables
 dotenv.config();
