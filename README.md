@@ -2,7 +2,8 @@
 1. Install NodeJs and SQLite and setup
 2. Create a project folder & intialize with - npm init -y
 3. Install required packages npm install express sqlite3 bcryptjs jsonwebtoken multer cors dotenv
-4. Setup tables in database ( users, documents, credits )
+4. Setup tables in database ( users, documents, credits ) 
+    for timestamps I used GMT format
 5. Setup a server, connect database.
 6. Create routes, middleware, models, config/database directories inside backend directory
 7. Create a frontend directory
