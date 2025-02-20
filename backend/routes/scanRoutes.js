@@ -7,6 +7,6 @@ const scanRoute = express.Router();
 const upload = multer({ dest: "uploads/" });
 
 // Document Scanning Route
-scanRoute.post("/scan", authenticateUser, upload.single("document"), scanDocument);
+scanRoute.post("/scan", authenticateUser, upload.single("file"), scanDocument);
 
 module.exports = scanRoute;

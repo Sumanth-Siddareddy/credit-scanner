@@ -1,25 +1,30 @@
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
+const { promisify } = require("util");
+const db = require("../config/database");
 
-dotenv.config();
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
+const getQuery = promisify(db.get).bind(db);
 
-// Middleware to verify token and extract user details
-const authenticateUser = (req, res, next) => {
-    const token = req.header("Authorization");
-
-    if (!token) {
-        return res.status(401).json({ error: "Access denied. No token provided." });
-    }
-
+const authenticateUser = async (req, res, next) => {
     try {
-        const decoded = jwt.verify(token.replace("Bearer ", ""), JWT_SECRET);
-        req.user = decoded;  // Attach decoded user data to req
-        next();  // Proceed to next middleware
-    } catch (err) {
-        res.status(403).json({ error: "Invalid or expired token" });
+        const token = req.header("Authorization")?.split(" ")[1]; // Extract token from Bearer token
+        if (!token) {
+            return res.status(401).json({ error: "Access denied. No token provided." });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify JWT token
+        const user = await getQuery("SELECT * FROM users WHERE id = ?", [decoded.id]);
+
+        if (!user) {
+            return res.status(401).json({ error: "Invalid token. User not found." });
+        }
+
+        req.user = user; // Attach user data to request
+        next();
+    } catch (error) {
+        return res.status(401).json({ error: "Unauthorized. Invalid token." });
     }
 };
+
 
 // Middleware to check if the user has an "admin" role
 const authorizeAdmin = (req, res, next) => {
