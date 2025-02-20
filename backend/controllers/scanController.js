@@ -6,6 +6,7 @@ const db = require("../config/database");
 const { deductCredits } = require("./creditController"); // Import credit deduction
 
 const getQuery = promisify(db.get).bind(db);
+const insertQuery = promisify(db.run).bind(db);
 
 // Function to extract text from PDFs
 const extractTextFromPDF = async (filePath) => {
@@ -62,7 +63,15 @@ const scanDocument = async (req, res) => {
             // console.log("Processing image file...");
             extractedText = await extractTextFromImage(filePath);
         }
-
+        
+        // Insert the extracted text into the database
+        await insertQuery("INSERT INTO scans (user_id, filename, extracted_text) VALUES (?, ?, ?)", 
+            [req.user.id, req.file.originalname, extractedText]);
+        // console.log("requested user id :".req.user.id)
+        // console.log("Input file name :",req.file.originalname)
+        // console.log("Extracted text : ",extractedText)
+        
+        
         // print extracted text
         //console.log("Extracted Text:", extractedText);
 
