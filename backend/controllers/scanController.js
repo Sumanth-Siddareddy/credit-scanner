@@ -1,48 +1,100 @@
 const fs = require("fs");
 const { promisify } = require("util");
-const Tesseract = require("tesseract.js"); // OCR - Optical Character Recognition Library
+const pdfParse = require("pdf-parse"); // PDF text extraction
+const Tesseract = require("tesseract.js"); // OCR - Optical Character Recognition
 const db = require("../config/database");
-const { deductCredits } = require("./creditController"); // Import deductCredits function
+const { deductCredits } = require("./creditController"); // Import credit deduction
 
 const getQuery = promisify(db.get).bind(db);
+
+// Function to extract text from PDFs
+const extractTextFromPDF = async (filePath) => {
+    try {
+        const dataBuffer = fs.readFileSync(filePath);
+        const pdfData = await pdfParse(dataBuffer);
+        return pdfData.text;
+    } catch (error) {
+        console.error("PDF Parsing Error:", error);
+        return "";
+    }
+};
+
+// Function to extract text from images using OCR
+const extractTextFromImage = async (filePath) => {
+    try {
+        const { data: { text } } = await Tesseract.recognize(filePath, "eng");
+        return text;
+    } catch (error) {
+        console.error("OCR Error:", error);
+        return "";
+    }
+};
 
 // Document Scanning Logic
 const scanDocument = async (req, res) => {
     try {
+        // to ckeck file is received or not
+        // console.log("Request received for document scan");
+        // console.log("Uploaded File:", req.file);
+
         if (!req.file) {
             return res.status(400).json({ error: "No file uploaded" });
         }
-        // check does file is recieved or not
-        res.json({ message: "File received", filename: req.file.filename });
 
-        // Check if user has enough credits
+        // Get user details and check credits
         const user = await getQuery("SELECT * FROM users WHERE id = ?", [req.user.id]);
         if (!user || user.credits < 1) {
             return res.status(400).json({ error: "Insufficient credits. Please request more credits." });
         }
 
-        // Extract text from document
-        const { data: { text } } = await Tesseract.recognize(req.file.path, "eng");
+        const filePath = req.file.path;
+        const fileExtension = req.file.originalname.split(".").pop().toLowerCase();
+        let extractedText = "";
 
-        // Check for matching keywords (Example: Invoice, Receipt, etc.)
-        const matches = text.match(/\b(invoice|receipt|bill|contract)\b/gi);
-        const response = matches
-            ? { message: "Document scanned successfully", extracted_text: text, matches }
-            : { message: "No relevant keywords found", extracted_text: text };
+        // to verify the extracted text
+        // console.log("Extracting text from:", filePath);
 
-        // Send response after successful scan and credit deduction
+        // Choose extraction method based on file type
+        if (fileExtension === "pdf") {
+            // console.log("Processing PDF file...");
+            extractedText = await extractTextFromPDF(filePath);
+        } else {
+            // console.log("Processing image file...");
+            extractedText = await extractTextFromImage(filePath);
+        }
+
+        // print extracted text
+        //console.log("Extracted Text:", extractedText);
+
+        // Deduct 1 credit
+        // console.log(req.user); to check user details are feteched or not
+        const creditResult = await deductCredits(req.user.id);
+        // console.log(creditResult); to check does we get credit results after deducting
+        const remainingCredits = creditResult.remaining_credits;
+        if (creditResult.error) {
+            return res.status(400).json({ error: creditResult.error });
+        }
+
+        // Check for matching keywords (Invoice, Receipt, Bill, Contract)
+        const matches = extractedText.match(/\b(invoice|receipt|bill|contract)\b/gi);
+        const response = {
+            message: "Document scanned successfully",
+            extracted_text: extractedText,
+            matches: matches || [],
+            remaining_credits: creditResult.remaining_credits
+        };
+
+        // Send response
         res.json(response);
 
-        // Deduct 1 credit by calling the existing function
-        await deductCredits(req, res);
-
     } catch (error) {
-        console.error("Scan Error: ",error);
+        console.error("Scan Error:", error);
         res.status(500).json({ error: "Internal server error" });
-    }finally {
-        // Always delete the uploaded file to avoid storage issues
+    } finally {
+        // Always delete the uploaded file to prevent storage issues
         if (req.file && fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
+            console.log("Deleted uploaded file:", req.file.path);
         }
     }
 };

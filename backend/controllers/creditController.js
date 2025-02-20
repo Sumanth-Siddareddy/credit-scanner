@@ -2,22 +2,28 @@ const { promisify } = require("util");
 const db = require("../config/database");
 
 const getQuery = promisify(db.get).bind(db);
+const updateQuery = promisify(db.run).bind(db);
 const runQuery = promisify(db.run).bind(db);
 
 // Deduct 1 Credit for Scanning
-const deductCredits = async (req, res) => {
+const deductCredits = async (userId) => {
     try {
-        const user = await getQuery("SELECT * FROM users WHERE id = ?", [req.user.id]);
-        
+        // Get current user credits
+        const user = await getQuery("SELECT credits FROM users WHERE id = ?", [userId]);
         if (!user || user.credits < 1) {
-            return res.status(400).json({ error: "Insufficient credits. Please request more credits." });
+            return { error: "Insufficient credits. Please request more credits." };
         }
 
-        // Deduct 1 credit
-        await runQuery("UPDATE users SET credits = credits - 1 WHERE id = ?", [req.user.id]);
-        res.json({ message: "1 credit deducted for scanning", remaining_credits: user.credits - 1 });
+        // Deduct one credit
+        await updateQuery("UPDATE users SET credits = credits - 1 WHERE id = ?", [userId]);
+
+        // Get updated credits
+        const updatedUser = await getQuery("SELECT credits FROM users WHERE id = ?", [userId]);
+
+        return { success: true, remaining_credits: updatedUser.credits };
     } catch (error) {
-        res.status(500).json({ error: "Internal server error" });
+        console.error("Credit Deduction Error:", error);
+        return { error: "Error while deducting credits" };
     }
 };
 
@@ -74,6 +80,7 @@ const approveCreditRequest = async (req, res) => {
         await runQuery("UPDATE users SET credits = ? WHERE id = ?", [newCreditBalance, userId]);
         await runQuery("UPDATE credit_requests SET status ='approved' WHERE user_id = ?", [userId]);
 
+        return { success: true, remaining_credits: updatedUser.credits };
         res.json({ message: "5 credits approved successfully!", new_credits: newCreditBalance });
 
     } catch (error) {
