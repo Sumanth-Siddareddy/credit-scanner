@@ -14,6 +14,7 @@ creditRouter.get("/balance", authenticateUser, async (req, res) => {
 });
 
 // Deduct Credits for Scanning
+// console.log(" call credits deducted sumanth!!!!!!!");
 creditRouter.post("/deduct", authenticateUser, deductCredits);
 
 // Request More Credits

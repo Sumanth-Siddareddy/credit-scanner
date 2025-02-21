@@ -12,6 +12,7 @@ const router = express.Router();
 // Convert db methods to return Promises
 const runQuery = promisify(db.run).bind(db);
 const getQuery = promisify(db.get).bind(db);
+const getUser = promisify(db.get).bind(db);
 const updateUser = promisify(db.run).bind(db);
 
 // Function to check and reset credits if needed
@@ -43,6 +44,11 @@ router.post(
       }
 
       const { username, password, role } = req.body;
+
+      // to check role is user || admin only.. If something else return inavlid user
+      if (!['user', 'admin'].includes(role)) {
+        return res.status(400).json({ message: "Invalid role. Allowed roles: 'user', 'admin'." });
+      }
 
       // Check if the username already exists
       const existingUser = await getQuery("SELECT * FROM users WHERE username = $1", [username]);

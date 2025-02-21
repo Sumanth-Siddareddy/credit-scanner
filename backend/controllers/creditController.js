@@ -5,13 +5,54 @@ const getQuery = promisify(db.get).bind(db);
 const updateQuery = promisify(db.run).bind(db);
 const runQuery = promisify(db.run).bind(db);
 
+// const deductCredits = async (userId) => {
+//     try {
+//         // Get current user credits
+//         const user = await getQuery("SELECT credits FROM users WHERE id = ?", [userId]);
+//         if (!user) {
+//             console.error(`No user found with ID ${userId}`);
+//             return { error: "User not found" };
+//         }
+
+//         if (!user || user.credits < 1) {
+//             return { error: "Insufficient credits. Please request more credits." };
+//         }
+
+//         if (!user || typeof user.credits === "undefined") {
+//             return { error: "User not found or no credits available." };
+//         }
+        
+
+//         // Deduct one credit
+//         await updateQuery("UPDATE users SET credits = credits - 1 WHERE id = ?", [userId]);
+//         // console.log("credits deducted sumanth!!!!!!!");
+
+//         // Get updated credits
+//         const updatedUser = await getQuery("SELECT credits FROM users WHERE id = ?", [userId]);
+
+//         res.status(200).json({ success: true, remaining_credits: updatedUser.credits });
+//     } catch (error) {
+//         console.error("Credit Deduction Error:", error);
+//         return { error: "Error while deducting credits" };
+//     }
+// };
+
 // Deduct 1 Credit for Scanning
-const deductCredits = async (userId) => {
+const deductCredits = async (req, res) => {
     try {
+        const userId = req.user.id; // Extract user ID from request
+        console.log("🔹 User ID extracted:", userId);
+
         // Get current user credits
         const user = await getQuery("SELECT credits FROM users WHERE id = ?", [userId]);
-        if (!user || user.credits < 1) {
-            return { error: "Insufficient credits. Please request more credits." };
+
+        if (!user) {
+            console.error(` No user found with ID ${userId}`);
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        if (user.credits < 1) {
+            return res.status(400).json({ error: "Insufficient credits. Please request more credits." });
         }
 
         // Deduct one credit
@@ -20,10 +61,10 @@ const deductCredits = async (userId) => {
         // Get updated credits
         const updatedUser = await getQuery("SELECT credits FROM users WHERE id = ?", [userId]);
 
-        return { success: true, remaining_credits: updatedUser.credits };
+        return res.json({ success: true, remaining_credits: updatedUser.credits });
     } catch (error) {
         console.error("Credit Deduction Error:", error);
-        return { error: "Error while deducting credits" };
+        return res.status(500).json({ error: "Error while deducting credits" });
     }
 };
 
