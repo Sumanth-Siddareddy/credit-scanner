@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .user-info {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .credits-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .scan-history {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .logout-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .logout-btn:hover {
+            background: #b91c1c;
+        }
+    </style>
+</head>
+<body>
+    <button id="logout" class="logout-btn">Logout</button>
+    
+    <div class="dashboard-container">
+        <div class="user-info">
+            <h2>Welcome, <span id="username">User</span></h2>
+            <p>Role: <span id="user-role">User</span></p>
+        </div>
+        
+        <div class="credits-section">
+            <h3>Credits Information</h3>
+            <p>Available Credits: <span id="available-credits">0</span></p>
+            <p>Used Today: <span id="used-credits">0</span></p>
+            <button id="request-credits" class="btn">Request More Credits</button>
+        </div>
+        
+        <div class="scan-history">
+            <h3>Recent Scans</h3>
+            <div id="scan-list">
+                <!-- Scan history will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/index.html';
+        }
+
+        // Logout function
+        document.getElementById('logout').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            window.location.href = '/index.html';
+        });
+
+        // Fetch user data
+        async function fetchUserData() {
+            try {
+                const response = await fetch('http://localhost:5000/protected/user/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('username').textContent = data.username;
+                    document.getElementById('available-credits').textContent = data.credits;
+                    document.getElementById('used-credits').textContent = data.usedToday;
+                } else {
+                    throw new Error('Failed to fetch user data');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Initialize dashboard
+        fetchUserData();
+    </script>
+</body>
+</html>

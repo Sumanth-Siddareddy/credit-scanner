@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth - Register & Login</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Register Form (Shown by Default) -->
+        <div id="register-form">
+            <h2>Register</h2>
+            <div id="register-message" class="message"></div>
+            <form id="register">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="input-group">
+                    <label for="role">Role</label>
+                    <select id="role" required>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit">Register</button>
+            </form>
+            <p class="toggle-link">Already have an account? <span id="show-login">Login</span></p>
+        </div>
+
+        <!-- Login Form (Hidden Initially) -->
+        <div id="login-form" class="hidden">
+            <h2>Login</h2>
+            <div id="login-message" class="message"></div>
+            <form id="login">
+                <div class="input-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" required>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            <p class="toggle-link">Don't have an account? <span id="show-register">Register</span></p>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+</body>
+</html>
