@@ -89,9 +89,26 @@ const approveCreditRequest = async (req, res) => {
     }
 };
 
+// Admin manually sets user credits
+const setCredits = async (req, res) => {
+    const { userId } = req.params;
+    const { credits } = req.body;
+
+    if (!Number.isInteger(credits) || credits < 0 || credits > 20) {
+        return res.status(400).json({ error: "Invalid credit amount. Must be between 0 and 20." });
+    }
+
+    try {
+        await updateUser("UPDATE users SET credits = ? WHERE id = ?", [credits, userId]);
+        res.json({ message: `Credits set to ${credits} for user ${userId}.` });
+    } catch (error) {
+        res.status(500).json({ error: "Database error. Could not update credits." });
+    }
+};
 
 module.exports = {
     deductCredits,
     requestCredits,
-    approveCreditRequest
+    approveCreditRequest, 
+    setCredits
 };

@@ -1,6 +1,6 @@
 const express = require("express");
 const { authenticateUser, authorizeAdmin } = require("../middleware/authMiddleware");
-const { deductCredits, requestCredits, approveCreditRequest } = require("../controllers/creditController");
+const { deductCredits, requestCredits, approveCreditRequest, setCredits } = require("../controllers/creditController");
 
 const creditRouter = express.Router();
 
@@ -21,5 +21,8 @@ creditRouter.post("/request", authenticateUser, requestCredits);
 
 // Admin Approves Credit Requests
 creditRouter.post("/approve/:userId", authenticateUser, authorizeAdmin, approveCreditRequest);
+
+// Admin Manually Sets User Credits
+creditRouter.post("/set/:userId", authenticateUser, authorizeAdmin, setCredits);
 
 module.exports = creditRouter;
