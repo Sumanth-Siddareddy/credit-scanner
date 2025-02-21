@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 // "your_jwt_token_here"
-const token =  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywicm9sZSI6InVzZXIiLCJpYXQiOjE3NDAxMjM3MjMsImV4cCI6MTc0MDIxMDEyM30.FVPr65marybo96zqdBGsQgr8WLRy24UwrBxSGfOo6ZI";
+const token =  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0MDEyOTYwOSwiZXhwIjoxNzQwMjE2MDA5fQ.Yz-OooQH2tWGh-aZUNk-awH4zJrLdqFFcm73vQm3vXM"
 const decoded = jwt.decode(token);
 
 const issuedAt = new Date(decoded.iat * 1000);
