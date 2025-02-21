@@ -12,6 +12,19 @@ const router = express.Router();
 // Convert db methods to return Promises
 const runQuery = promisify(db.run).bind(db);
 const getQuery = promisify(db.get).bind(db);
+const updateUser = promisify(db.run).bind(db);
+
+// Function to check and reset credits if needed
+const checkAndResetCredits = async (userId) => {
+  const currentDate = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }).split(",")[0];
+
+  const user = await getUser("SELECT id, last_credit_update FROM users WHERE id = ?", [userId]);
+
+  if (user.last_credit_update !== currentDate) {
+      await updateUser("UPDATE users SET credits = 20, last_credit_update = ? WHERE id = ?", [currentDate, userId]);
+      console.log(`Credits reset for user ${userId} on login.`);
+  }
+};
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
@@ -83,6 +96,9 @@ router.post(
       if (!isMatch) {
         return res.status(400).json({ error: "Invalid username or password" });
       }
+
+      // Ensure daily credit reset on login
+      await checkAndResetCredits(user.id);
 
       // Generate JWT token
       const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: "1d" });
