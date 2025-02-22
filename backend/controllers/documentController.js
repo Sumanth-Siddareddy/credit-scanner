@@ -1,7 +1,9 @@
 const { promisify } = require("util");
 const db = require("../config/database");
 
-const { getMistralSimilarity } = require("../utils/mistralApi");
+const { getLangchainSimilarity } = require("../utils/langChainApi");
+const { getLangchainTopics } = require("../utils/langChainApi");
+
 const { findBestTfIdfMatch } = require("../utils/tfidfMatcher");
 
 const getQuery = promisify(db.get).bind(db);
@@ -31,13 +33,14 @@ const saveDocument = async (req, res) => {
         let topic = null;
         let aiUsed = true;
 
-        // Step 1: Try extracting topics using Mistral 7B
+        // Step 1: Try extracting topics using LangChain
         try {
-            topic = await getMistralTopics(extracted_text);
+            topic = await getLangchainTopics(extracted_text);
         } catch (error) {
-            console.log("Mistral API failed, falling back to TF-IDF.");
+            console.log("LangChain API failed, falling back to TF-IDF.");
             aiUsed = false;
         }
+
 
         // Step 2: Fallback to TF-IDF if Mistral fails
         if (!topic) {
@@ -77,13 +80,14 @@ const matchDocuments = async (req, res) => {
         let bestMatch;
         let aiUsed = true;
 
-        // Try using Mistral 7B first
-        bestMatch = await getMistralSimilarity(text, documentTexts);
+        // Try using LangChain API first
+        bestMatch = await getLangchainSimilarity(text, documentTexts);
         if (!bestMatch) {
-            console.log("Mistral API failed, falling back to TF-IDF.");
+            console.log("LangChain API failed, falling back to TF-IDF.");
             bestMatch = findBestTfIdfMatch(text, documentTexts);
             aiUsed = false;
         }
+
 
         return res.json({
             best_match_text: bestMatch.text,
@@ -109,11 +113,11 @@ const checkDuplicate = async (req, res) => {
         const existingDocs = await allQuery("SELECT extracted_text FROM scans");
         const documentTexts = existingDocs.map(doc => doc.extracted_text);
 
-        let bestMatch = await getMistralSimilarity(text, documentTexts);
+        let bestMatch = await getLangchainSimilarity(text, documentTexts);
         let aiUsed = true;
 
         if (!bestMatch) {
-            console.log("Mistral API failed, falling back to TF-IDF.");
+            console.log("LangChain API failed, falling back to TF-IDF.");
             bestMatch = findBestTfIdfMatch(text, documentTexts);
             aiUsed = false;
         }

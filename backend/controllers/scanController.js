@@ -84,82 +84,103 @@ const findMatches = async (text) => {
     }
 };
 
+const getScansByUserId = async (req, res) => {
+    try {
+        const { user_id } = req.query; // Get user_id from query parameters
+
+        if (!user_id) {
+            return res.status(400).json({ error: "User ID is required" });
+        }
+
+        // Fetch scans for the specified user
+        const scans = await getQuery("SELECT * FROM scans WHERE user_id = ?", [user_id]);
+
+        res.json({ scans });
+    } catch (error) {
+        console.error("Error fetching scans:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
 
 // Document Scanning Logic
 const scanDocument = async (req, res) => {
     try {
-        // to ckeck file is received or not
-        // console.log("Request received for document scan");
-        // console.log("Uploaded File:", req.file);
-
         if (!req.file) {
             return res.status(400).json({ error: "No file uploaded" });
         }
 
         // Get user details and check credits
         const user = await getQuery("SELECT * FROM users WHERE id = ?", [req.user.id]);
-        if (user.role === "admin") {
-            console.log("Admin scanning - skipping credit deduction.");
-        } else if (!user || user.credits < 1) {
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        if (user.role !== "admin" && user.credits < 1) {
             return res.status(400).json({ error: "Insufficient credits. Please request more credits." });
-        }        
+        }
 
         const filePath = req.file.path;
         const fileExtension = req.file.originalname.split(".").pop().toLowerCase();
         let extractedText = "";
 
-        // to verify the extracted text
-        // console.log("Extracting text from:", filePath);
-
         // Choose extraction method based on file type
         if (fileExtension === "pdf") {
             extractedText = await extractTextFromPDF(filePath);
-        } else if (fileExtension === "jpg" || fileExtension === "png") {
+        } else if (["jpg", "png"].includes(fileExtension)) {
             extractedText = await extractTextFromImage(filePath);
         } else if (fileExtension === "docx") {
             extractedText = await extractTextFromDOCX(filePath);
         } else {
-            return res.status(400).json({ error:{fileExtension} +' is unsupported file type for this application. Try pdf, jpg, png, docx filetypes.' });
-        }
-        
-        // print extracted text
-        //console.log("Extracted Text:", extractedText);
-        // console.log("requested user id :".req.user.id)
-        // console.log("Input file name :",req.file.originalname)
-        // console.log("Extracted text : ",extractedText)
-        
-        // Insert the extracted text into the database
-        // await insertQuery("INSERT INTO scans (user_id, filename, extracted_text) VALUES (?, ?, ?)", 
-        //     [req.user.id, req.file.originalname, extractedText]);
-        // inserting extracted text will be done in documentController.js
-    
-
-        // Deduct 1 credit & console.log(req.user); to check user details are feteched or not
-        const creditResult = await deductCredits(req.user.id);
-        // console.log(creditResult); to check does we get credit results after deducting
-        const remainingCredits = creditResult.remaining_credits;
-        if (creditResult.error) {
-            return res.status(400).json({ error: creditResult.error });
+            return res.status(400).json({ error: `${fileExtension} is an unsupported file type. Try pdf, jpg, png, docx.` });
         }
 
+        console.log("Extracted Text:", extractedText);
+
+        // **Extract keywords & match document**
         const { matches, isDuplicate, similarityScore } = await findMatches(extractedText);
+        const keywords = matches.join(", "); // Store keywords as comma-separated string
+        const matchStatus = isDuplicate ? "duplicate" : "unique"; // Store match status
+
+        // **Determine topic** (can be based on keywords or extracted text logic)
+        let topic = "General"; // Default topic
+        if (matches.length > 0) {
+            topic = matches[0]; // Assign first matched keyword as topic (can be improved)
+        }
+
+        // **Insert extracted text, metadata into DB**
+        await insertQuery(
+            `INSERT INTO scans (user_id, filename, extracted_text, keywords, match_status, topic) 
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [req.user.id, req.file.originalname, extractedText, keywords, matchStatus, topic]
+        );
+
+        // Deduct 1 credit if user is not an admin
+        if (user.role !== "admin") {
+            const creditResult = await deductCredits(req, res);
+            if (creditResult.error) {
+                return res.status(400).json({ error: creditResult.error });
+            }
+        }
+
+        // **Prepare response**
         const response = {
             message: "Document scanned successfully",
-            extracted_text: extractedText,  // Display extracted text
-            matches: matches,               // Highlight matched words
-            match_status: isDuplicate ? "Document already exists" : "New document",
-            similarity_score: similarityScore, // Display similarity score if duplicate
-            remaining_credits: creditResult.remaining_credits
+            extracted_text: extractedText,
+            keywords: matches,
+            topic: topic,
+            match_status: matchStatus,
+            similarity_score: similarityScore,
+            remaining_credits: user.role === "admin" ? "Admin (unlimited)" : user.credits - 1
         };
 
-        // Send response
         res.json(response);
 
     } catch (error) {
         console.error("Scan Error:", error);
         res.status(500).json({ error: "Internal server error" });
     } finally {
-        // Always delete the uploaded file to prevent storage issues
+        // Cleanup: Delete uploaded file after processing
         if (req.file && fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
             console.log("Deleted uploaded file:", req.file.path);
@@ -167,4 +188,4 @@ const scanDocument = async (req, res) => {
     }
 };
 
-module.exports = { scanDocument };
+module.exports = { scanDocument, getScansByUserId };

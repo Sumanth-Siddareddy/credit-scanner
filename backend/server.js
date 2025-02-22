@@ -23,13 +23,11 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use((req, res, next) => {
-  console.log(`Incoming request: ${req.method} ${req.url}`);
+  // console.log(`Incoming request: ${req.method} ${req.url}`);
   //console.log('Headers:', req.headers);
   //console.log('Body:', req.body);
   next();
 });
-
-
 
 // Schedule the credit reset job (Runs every day at 12:00 AM IST)
 // Start credit reset function at server startup
