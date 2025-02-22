@@ -8,6 +8,7 @@ const { deductCredits } = require("./creditController"); // credit deduction
 
 const getQuery = promisify(db.get).bind(db);
 const insertQuery = promisify(db.run).bind(db);
+const getAllQuery = promisify(db.all).bind(db); // Use db.all() for multiple rows
 
 // Function to extract text from Docs
 const extractTextFromDOCX = async (filePath) => {
@@ -58,13 +59,14 @@ const calculateSimilarity = (text1, text2) => {
 
 
 // Matching Function
-const findMatches = async (text) => {
+const findMatches = async (text, userId) => {
     try {
         const keywords = ["invoice", "receipt", "bill", "contract","story", "programming", "fees", "fine", "dues", "order"]; // Predefined keywords
         const matches = text.match(new RegExp(`\\b(${keywords.join("|")})\\b`, "gi")) || [];
-
+        console.log("scanController : matches :",matches);
         // Fetch all stored texts from the database
-        const existingDocs = await getQuery("SELECT extracted_text FROM scans");
+        const existingDocs = await getQuery("SELECT extracted_text FROM scans where user_id = ?", [userId]);
+        // console.log("Scan Controller -> 69-> : ", existingDocs.length);
         let bestMatch = { text: "", similarity: 0 };
 
         // Compute similarity for each document
@@ -93,9 +95,12 @@ const getScansByUserId = async (req, res) => {
         }
 
         // Fetch scans for the specified user
-        const scans = await getQuery("SELECT * FROM scans WHERE user_id = ?", [user_id]);
+        const scans = await getAllQuery("SELECT * FROM scans WHERE user_id = ?", [user_id]);
 
-        res.json({ scans });
+        // console.log("Type of scans:", typeof scans);
+        // console.log("Scans for user", user_id, ":", scans);
+
+        res.json(scans);
     } catch (error) {
         console.error("Error fetching scans:", error);
         res.status(500).json({ error: "Internal server error" });
@@ -110,7 +115,6 @@ const scanDocument = async (req, res) => {
             return res.status(400).json({ error: "No file uploaded" });
         }
 
-        // Get user details and check credits
         const user = await getQuery("SELECT * FROM users WHERE id = ?", [req.user.id]);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
@@ -124,7 +128,6 @@ const scanDocument = async (req, res) => {
         const fileExtension = req.file.originalname.split(".").pop().toLowerCase();
         let extractedText = "";
 
-        // Choose extraction method based on file type
         if (fileExtension === "pdf") {
             extractedText = await extractTextFromPDF(filePath);
         } else if (["jpg", "png"].includes(fileExtension)) {
@@ -132,30 +135,20 @@ const scanDocument = async (req, res) => {
         } else if (fileExtension === "docx") {
             extractedText = await extractTextFromDOCX(filePath);
         } else {
-            return res.status(400).json({ error: `${fileExtension} is an unsupported file type. Try pdf, jpg, png, docx.` });
+            return res.status(400).json({ error: `${fileExtension} is an unsupported file type.` });
         }
 
-        console.log("Extracted Text:", extractedText);
+        const { matches, isDuplicate, similarityScore } = await findMatches(extractedText, req.user.id);
+        const keywords = matches.join(", ");
+        const matchStatus = isDuplicate ? "duplicate" : "unique";
+        let topic = matches.length > 0 ? matches[0] : "General";
 
-        // **Extract keywords & match document**
-        const { matches, isDuplicate, similarityScore } = await findMatches(extractedText);
-        const keywords = matches.join(", "); // Store keywords as comma-separated string
-        const matchStatus = isDuplicate ? "duplicate" : "unique"; // Store match status
-
-        // **Determine topic** (can be based on keywords or extracted text logic)
-        let topic = "General"; // Default topic
-        if (matches.length > 0) {
-            topic = matches[0]; // Assign first matched keyword as topic (can be improved)
-        }
-
-        // **Insert extracted text, metadata into DB**
         await insertQuery(
             `INSERT INTO scans (user_id, filename, extracted_text, keywords, match_status, topic) 
              VALUES (?, ?, ?, ?, ?, ?)`,
             [req.user.id, req.file.originalname, extractedText, keywords, matchStatus, topic]
         );
 
-        // Deduct 1 credit if user is not an admin
         if (user.role !== "admin") {
             const creditResult = await deductCredits(req, res);
             if (creditResult.error) {
@@ -163,7 +156,6 @@ const scanDocument = async (req, res) => {
             }
         }
 
-        // **Prepare response**
         const response = {
             message: "Document scanned successfully",
             extracted_text: extractedText,
@@ -174,18 +166,21 @@ const scanDocument = async (req, res) => {
             remaining_credits: user.role === "admin" ? "Admin (unlimited)" : user.credits - 1
         };
 
-        res.json(response);
+        if (!res.headersSent) {
+            res.json(response);
+        }
 
     } catch (error) {
         console.error("Scan Error:", error);
-        res.status(500).json({ error: "Internal server error" });
+        if (!res.headersSent) {
+            res.status(500).json({ error: "Internal server error" });
+        }
     } finally {
-        // Cleanup: Delete uploaded file after processing
         if (req.file && fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
-            console.log("Deleted uploaded file:", req.file.path);
         }
     }
 };
+
 
 module.exports = { scanDocument, getScansByUserId };

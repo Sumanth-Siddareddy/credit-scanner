@@ -1,4 +1,5 @@
 /backend/.env
+/backend/uploads
 /package-lock.json
 node_modules/
 Note_Points.txt
