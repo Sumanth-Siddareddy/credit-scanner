@@ -8,12 +8,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginMessage = document.getElementById('login-message');
 
     // Check if user is already logged in
-    // const token = localStorage.getItem('token');
-    // if (token) {
-    //     const role = localStorage.getItem('role');
-    //     window.location.href = role === 'admin' ? 'public/admin.html' : 'public/dashboard.html';
-    //     return;
-    // }
+    const token = localStorage.getItem('token');
+    if (token) {
+        const role = localStorage.getItem('role');
+        window.location.href = role === 'admin' ? 'public/admin.html' : 'public/profile.html';
+        return;
+    }
 
     // Toggle between forms
     showLoginBtn.addEventListener('click', () => {
@@ -93,13 +93,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
-
+        // console.log("login response : ",username, " , ",password);
         try {
             const response = await fetch('http://localhost:5000/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),
             });
+           // console.log("login response : ",response);
 
             const data = await response.json();
 
@@ -114,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Show success message for 5 seconds before redirecting
                 setTimeout(() => {
-                    window.location.href = userRole === 'admin' ? 'public/admin.html' : 'public/dashboard.html';
+                    window.location.href = userRole === 'admin' ? 'public/admin.html' : 'public/profile.html';
                 }, 5000);
             } else {
                 showMessage(loginMessage, 'Invalid username or password', 'error');

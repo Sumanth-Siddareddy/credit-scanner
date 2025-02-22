@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile & Dashboard</title>
+    <link rel="stylesheet" href="../css/profile.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="user-info">
+                <h2>Welcome, <span id="username">User</span></h2>
+                <p>Role: <span id="userRole">User</span></p>
+            </div>
+            <button id="logoutBtn" class="btn-logout">Logout</button>
+        </header>
+
+        <main class="dashboard-content">
+            <!-- Profile Section -->
+            <section class="profile-section">
+                <div class="profile-card">
+                    <h3>Account Information</h3>
+                    <div class="info-group">
+                        <label>Username:</label>
+                        <span id="profileUsername"></span>
+                    </div>
+                    <div class="info-group">
+                        <label>Role:</label>
+                        <span id="profileRole"></span>
+                    </div>
+                    <div class="info-group">
+                        <label>Available Credits:</label>
+                        <span id="profileCredits">0</span>
+                        <button id="requestCreditsBtn" class="btn-secondary">Request Credits</button>
+                    </div>
+                    <div class="info-group">
+                        <label>Total Scans:</label>
+                        <span id="totalScans">0</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Document Upload Section -->
+            <section class="upload-section">
+                <h3>Upload Document</h3>
+                <form id="uploadForm" class="upload-form">
+                    <div class="file-input-container">
+                        <input type="file" id="documentFile" accept=".pdf,.doc,.docx" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Scan Document</button>
+                </form>
+            </section>
+
+            <!-- Scan History -->
+            <section class="history-section">
+                <h3>Scan History</h3>
+                <div class="table-container">
+                    <table id="scanHistory">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Document Name</th>
+                                <th>Status</th>
+                                <th>Topic</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- History rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Message Popup -->
+    <div id="messagePopup" class="popup">
+        <div class="popup-content">
+            <span class="close-popup">&times;</span>
+            <p id="messageText"></p>
+        </div>
+    </div>
+
+    <script src="../js/profile.js"></script>
+</body>
+</html>
