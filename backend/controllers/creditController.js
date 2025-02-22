@@ -46,9 +46,9 @@ const requestCredits = async (req, res) => {
         }
 
         // Insert credit request for 5 credits
-        await runQuery("INSERT INTO credit_requests (user_id, status, credits_requested) VALUES (?, 'pending', 5)", [req.user.id]);
+        await runQuery("INSERT INTO credit_requests (user_id, status, credits_requested) VALUES (?, 'pending', 1)", [req.user.id]);
         console.log("QUery executed.");
-        res.json({ message: "Credit request for 5 credits submitted. Waiting for admin approval." });
+        res.json({ message: "Credit request for 1 credit submitted. Waiting for admin approval." });
     } catch (error) {
          // Debug - to check that user details are feteched or not
          // print user id & error
@@ -60,64 +60,8 @@ const requestCredits = async (req, res) => {
     }
 };
 
-// Approve Credit Request (Admin Grants 5 Credits)
-const approveCreditRequest = async (req, res) => {
-    try {
-        const userId = req.params.userId;
-
-        // Fetch the user's current credit balance
-        const user = await getQuery("SELECT credits FROM users WHERE id = ?", [userId]);
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        // Check if a pending request exists
-        const request = await getQuery("SELECT * FROM credit_requests WHERE user_id = ? AND status = 'pending'", [userId]);
-        if (!request) {
-            return res.status(400).json({ error: "No pending credit request found for this user." });
-        }
-
-        // Calculate new credit balance
-        const newCreditBalance = user.credits + 5;
-
-        // Ensure credits do not exceed 20
-        if (newCreditBalance > 20) {
-            return res.status(400).json({ error: "Cannot approve request. Maximum allowed credits is 20. Please check your balance credits and make request accordingly" });
-        }
-
-        // Approve request and grant 5 credits
-        await runQuery("UPDATE users SET credits = ? WHERE id = ?", [newCreditBalance, userId]);
-        await runQuery("UPDATE credit_requests SET status ='approved' WHERE user_id = ?", [userId]);
-
-        return { success: true, remaining_credits: updatedUser.credits };
-        res.json({ message: "5 credits approved successfully!", new_credits: newCreditBalance });
-
-    } catch (error) {
-        console.error("Error in approveCreditRequest:", error);
-        res.status(500).json({ error: "Internal server error", details: error.message });
-    }
-};
-
-// Admin manually sets user credits
-const setCredits = async (req, res) => {
-    const { userId } = req.params;
-    const { credits } = req.body;
-
-    if (!Number.isInteger(credits) || credits < 0 || credits > 20) {
-        return res.status(400).json({ error: "Invalid credit amount. Must be between 0 and 20." });
-    }
-
-    try {
-        await updateUser("UPDATE users SET credits = ? WHERE id = ?", [credits, userId]);
-        res.json({ message: `Credits set to ${credits} for user ${userId}.` });
-    } catch (error) {
-        res.status(500).json({ error: "Database error. Could not update credits." });
-    }
-};
 
 module.exports = {
     deductCredits,
-    requestCredits,
-    approveCreditRequest, 
-    setCredits
+    requestCredits
 };

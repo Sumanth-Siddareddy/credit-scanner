@@ -8,12 +8,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginMessage = document.getElementById('login-message');
 
     // Check if user is already logged in
-    const token = localStorage.getItem('token');
-    if (token) {
-        const role = localStorage.getItem('role');
-        window.location.href = role === 'admin' ? 'public/admin.html' : 'public/profile.html';
-        return;
-    }
+    // const token = localStorage.getItem('token');
+    // if (token) {
+    //     const role = localStorage.getItem('role');
+    //     window.location.href = role === 'admin' ? 'public/admin.html' : 'public/profile.html';
+    //     return;
+    // }
 
     // Toggle between forms
     showLoginBtn.addEventListener('click', () => {

@@ -31,8 +31,9 @@ protect.get("/dashboard", authenticateUser, (req, res) => {
 });
 
 // Admin dashboard (only admin users)
-protect.get("/admin", authenticateUser, authorizeAdmin, (req, res) => {
-    res.json({ message: "Welcome to the Admin Dashboard" });
+protect.get("/admin", authenticateUser, authorizeAdmin, async (req, res) => {
+    const user = await getQuery("SELECT id, username, role, credits FROM users WHERE id = ?", [req.user.id]);
+    res.json({ message: "Welcome to the Admin Dashboard", "user":user });
 });
 
 module.exports = protect;
