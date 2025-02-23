@@ -5,6 +5,7 @@ const pdfParse = require("pdf-parse"); // PDF text extraction
 const Tesseract = require("tesseract.js"); // OCR - Optical Character Recognition
 const db = require("../config/database");
 const { deductCredits } = require("./creditController"); // credit deduction
+const jwt = require("jsonwebtoken");
 
 const getQuery = promisify(db.get).bind(db);
 const insertQuery = promisify(db.run).bind(db);
@@ -59,25 +60,31 @@ const calculateSimilarity = (text1, text2) => {
 
 
 // Matching Function
+const sanitizeText = (text) => {
+    return text.replace(/[^\w\s]/gi, ""); // Remove special characters
+};
+
 const findMatches = async (text, userId) => {
     try {
-        const keywords = ["invoice", "receipt", "bill", "contract","story", "programming", "fees", "fine", "dues", "order"]; // Predefined keywords
-        const matches = text.match(new RegExp(`\\b(${keywords.join("|")})\\b`, "gi")) || [];
-        console.log("scanController : matches :",matches);
-        // Fetch all stored texts from the database
-        const existingDocs = await getQuery("SELECT extracted_text FROM scans where user_id = ?", [userId]);
-        // console.log("Scan Controller -> 69-> : ", existingDocs.length);
+        const sanitizedText = sanitizeText(text.toLowerCase());
+        
+        const keywords = ["invoice", "receipt", "bill", "contract", "diet", "nutrition"]; // Expand keywords
+        const matches = sanitizedText.match(new RegExp(`\\b(${keywords.join("|")})\\b`, "gi")) || [];
+        
+        console.log("Sanitized Text:", sanitizedText);
+        console.log("Matches Found:", matches);
+        console.log("scanning user ID : ",userId);
+        const existingDocs = await getAllQuery("SELECT id, extracted_text FROM scans WHERE user_id = ?", [userId]);
         let bestMatch = { text: "", similarity: 0 };
-
-        // Compute similarity for each document
+        // console.log("number of Exsisting scans  in scans table : ",existingDocs.length);
         existingDocs.forEach((doc) => {
-            const similarity = calculateSimilarity(text, doc.extracted_text);
+            const similarity = calculateSimilarity(sanitizedText, sanitizeText(doc.extracted_text));
             if (similarity > bestMatch.similarity) {
                 bestMatch = { text: doc.extracted_text, similarity };
             }
         });
 
-        const isDuplicate = bestMatch.similarity >= 90; // Consider duplicate if similarity >= 90%
+        const isDuplicate = bestMatch.similarity >= 70;
 
         return { matches, isDuplicate, similarityScore: bestMatch.similarity };
     } catch (error) {
@@ -86,20 +93,20 @@ const findMatches = async (text, userId) => {
     }
 };
 
+
 const getScansByUserId = async (req, res) => {
     try {
-        const { user_id } = req.query; // Get user_id from query parameters
-
+        const authHeader = req.headers.authorization;
+        const token = authHeader.split(" ")[1]; 
+        const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify the token
+        const user_id = decoded.id; 
         if (!user_id) {
             return res.status(400).json({ error: "User ID is required" });
         }
 
         // Fetch scans for the specified user
         const scans = await getAllQuery("SELECT * FROM scans WHERE user_id = ?", [user_id]);
-
-        // console.log("Type of scans:", typeof scans);
-        // console.log("Scans for user", user_id, ":", scans);
-
+        console.log("scan controller : ", scans);
         res.json(scans);
     } catch (error) {
         console.error("Error fetching scans:", error);
@@ -116,6 +123,7 @@ const scanDocument = async (req, res) => {
         }
 
         const user = await getQuery("SELECT * FROM users WHERE id = ?", [req.user.id]);
+        console.log("USer with user id = ",req.user.id, "send scan request.");
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -155,7 +163,7 @@ const scanDocument = async (req, res) => {
                 return res.status(400).json({ error: creditResult.error });
             }
         }
-
+        
         const response = {
             message: "Document scanned successfully",
             extracted_text: extractedText,
@@ -165,7 +173,8 @@ const scanDocument = async (req, res) => {
             similarity_score: similarityScore,
             remaining_credits: user.role === "admin" ? "Admin (unlimited)" : user.credits - 1
         };
-
+        // console.log("TO check header sent of admin : ",res.headersSent);
+        // console.log(response);
         if (!res.headersSent) {
             res.json(response);
         }

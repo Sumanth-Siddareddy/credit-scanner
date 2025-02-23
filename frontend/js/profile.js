@@ -59,7 +59,7 @@
                 if (!scansResponse.ok) throw new Error('Failed to fetch scans');
         
                 const scansData = await scansResponse.json();
-                console.log("scans data :",scansData);
+                //console.log("scans data :",scansData);
                 // const scans = Array.isArray(scansData.scans) ? scansData.scans : [];
         
                 // Count total scans

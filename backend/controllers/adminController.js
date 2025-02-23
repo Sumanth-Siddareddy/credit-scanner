@@ -8,11 +8,13 @@ const runQuery = promisify(db.run).bind(db);
 // Get all pending credit requests
 const getPendingCreditRequests = async (req, res) => {
     try {
-        const requests = await db.all("SELECT * FROM credit_requests WHERE status = 'pending'");
-        res.json(requests);
+        // const query = getQuery("SELECT * FROM credit_requests ORDER BY request_date DESC;");
+        const creditRequests = await getQuery("SELECT * FROM credit_requests ORDER BY request_date DESC;");
+        console.log("Credit requests : line 13 -> adminController : ",creditRequests);
+        res.json({ success: true, data: creditRequests });
     } catch (error) {
         console.error("Error fetching credit requests:", error);
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
@@ -105,7 +107,7 @@ const getDashboardStats = async (req, res) => {
 
         // Fetch top users by scan count
         const topUsers = await allQuery(`
-            SELECT users.id, users.username AS name, COUNT(scans.id) AS scan_count
+            SELECT users.id, users.role, users.username AS name, COUNT(scans.id) AS scan_count
             FROM users
             LEFT JOIN scans ON users.id = scans.user_id
             GROUP BY users.id
@@ -128,7 +130,6 @@ const getDashboardStats = async (req, res) => {
             SELECT SUM(total_credits_used) AS total_credits_used 
             FROM (SELECT user_id, count(user_id) AS total_credits_used FROM scans GROUP BY user_id)
         `);
-
         res.json({
             topTopics: topics || [],
             topUsers: topUsers || [],

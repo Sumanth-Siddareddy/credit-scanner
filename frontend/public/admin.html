@@ -4,21 +4,117 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/admin.css">
 </head>
 <body>
-    <h1>Admin Dashboard</h1>
-    <p>Welcome, <span id="admin-name"></span></p>
-    <p>Available Credits: <span id="admin-credits"></span></p>
+    <div class="admin-container">
+        <header class="admin-header">
+            <div class="admin-profile">
+                <img src="../assests/Passport-Photo.jpeg" alt="Admin Profile" class="admin-avatar">
+                <div class="admin-info">
+                    <h2 id="adminName">Loading...</h2>
+                    <p id="adminRole">Admin</p>
+                </div>
+            </div>
+            <nav class="admin-nav">
+                <button class="nav-btn active" data-section="dashboard">Dashboard</button>
+                <button class="nav-btn" data-section="credits">Credit Requests</button>
+                <button class="nav-btn" data-section="scan">Document Scan</button>
+                <button id="logoutBtn" class="btn-logout">Logout</button>
+            </nav>
+        </header>
 
-    <h2>Credit Requests</h2>
-    <div id="credit-requests">Loading...</div>
+        <main class="admin-main">
+            <div id="messagePopup" class="message-popup">
+                <span id="messageText"></span>
+                <button class="close-popup">&times;</button>
+            </div>
 
-    <h2>Dashboard Analytics</h2>
-    <p>Top Topics: <span id="top-topics"></span></p>
-    <p>Top Users: <span id="top-users"></span></p>
-    <p>Top Credit Users: <span id="top-credit-users"></span></p>
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <h3>Total Credits Used</h3>
+                        <p id="totalCreditsUsed">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Top Topics</h3>
+                        <div id="topTopics" class="topics-list"></div>
+                    </div>
+                </div>
 
+                <div class="dashboard-tables">
+                    <div class="table-container">
+                        <h3>Top Users by Scans</h3>
+                        <table id="topUsersTable">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Scan Count</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="table-container">
+                        <h3>Users by Credits</h3>
+                        <table id="creditUsersTable">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Total Credits</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Credit Requests Section -->
+            <section id="credits" class="section">
+                <div class="credit-requests">
+                    <h2>Pending Credit Requests</h2>
+                    <div id="creditRequestsList" class="requests-list">
+                        <!-- Credit requests will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Document Scan Section -->
+            <section id="scan" class="section">
+                <div class="scan-container">
+                    <h2>Document Scanner</h2>
+                    <div class="upload-area">
+                        <input type="file" id="documentUpload" accept=".pdf,.doc,.docx">
+                        <label for="documentUpload" class="upload-label">
+                            Choose a document or drag it here
+                        </label>
+                    </div>
+                    <button id="scanButton" class="btn-primary">Scan Document</button>
+                    <div id="scanResults" class="scan-results"></div>
+
+                    <div class="scan-history mt-8">
+                        <h3>Scan History</h3>
+                        <table id="scanHistoryTable" class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>File Name</th>
+                                    <th>Match Status</th>
+                                    <th>Content</th>
+                                    <th>Topic</th>
+                                </tr>
+                            </thead>
+                            <tbody id="scanHistoryTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
     <script src="../js/admin.js"></script>
 </body>
 </html>

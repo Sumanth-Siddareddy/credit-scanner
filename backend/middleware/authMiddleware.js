@@ -31,7 +31,7 @@ const authenticateUser = async (req, res, next) => {
 
         next();
     } catch (error) {
-        console.error("Authentication Error:", error.message);
+        console.error(" backend/middleware/authMiddleware.js ->line 34 -> Authentication Error:", error.message);
         return res.status(401).json({ error: "Unauthorized. Invalid token." });
     }
 };
