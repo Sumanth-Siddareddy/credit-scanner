@@ -137,3 +137,24 @@ The frontend is divided into two primary modules:
 - Implements duplicate checking before scanning.
 - Enables users to request additional credits.
 - Displays scan history in a table format.
+
+
+## User Interface Screenshots
+
+### Register
+![Register](frontend/UI_Images/Register.jpg)
+
+### Login
+![Login](frontend/UI_Images/Login.jpg)
+
+### Admin Dashboard
+![Admin Dashboard](frontend/UI_Images/Admin_DashBoard.jpg)
+### Admin Document Scanning and scan history
+![Document Scanning for admin](frontend/UI_Images/document_scan_and_history_for_admin.jpg)
+### Admin credit request - approval, reject and credit requests history
+![credit requests approval or reject, request history](frontend/UI_Images/credit_request_approval.jpg)
+
+### User Profile - user details, scan document, credit request, scan history
+![User Profile](frontend/UI_Images/User_profile.jpg)
+
+
