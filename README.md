@@ -142,7 +142,7 @@ The frontend is divided into two primary modules:
 ## User Interface Screenshots
 
 ### Register
-![Register](frontend/UI_Images/Register.jpg)
+![Register](/frontend/UI_Images/Register.jpg)
 
 ### Login
 ![Login](frontend/UI_Images/Login.jpg)
