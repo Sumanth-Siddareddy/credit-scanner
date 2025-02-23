@@ -1,7 +1,7 @@
 const { promisify } = require("util");
 const db = require("../config/database");
 
-const getQuery = promisify(db.get).bind(db);
+const getQuery = promisify(db.all).bind(db);
 const allQuery = promisify(db.all).bind(db);
 const runQuery = promisify(db.run).bind(db);
 
@@ -10,7 +10,8 @@ const getPendingCreditRequests = async (req, res) => {
     try {
         // const query = getQuery("SELECT * FROM credit_requests ORDER BY request_date DESC;");
         const creditRequests = await getQuery("SELECT * FROM credit_requests ORDER BY request_date DESC;");
-        console.log("Credit requests : line 13 -> adminController : ",creditRequests);
+        console.log(creditRequests);
+        // console.log("Credit requests : line 13 -> adminController : ",creditRequests);
         res.json({ success: true, data: creditRequests });
     } catch (error) {
         console.error("Error fetching credit requests:", error);
@@ -130,11 +131,14 @@ const getDashboardStats = async (req, res) => {
             SELECT SUM(total_credits_used) AS total_credits_used 
             FROM (SELECT user_id, count(user_id) AS total_credits_used FROM scans GROUP BY user_id)
         `);
+        // console.log("total credits used : ",creditStats[0]);
+        const total_credits = creditStats[0];
+        // console.log(total_credits.total_credits_used);
         res.json({
             topTopics: topics || [],
             topUsers: topUsers || [],
             topCreditUsers: topCreditUsers || [],
-            totalCreditsUsed: creditStats?.total_credits_used || 0
+            totalCreditsUsed: total_credits.total_credits_used || 0
         });
 
     } catch (error) {

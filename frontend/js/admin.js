@@ -24,7 +24,7 @@ const API = {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
-                console.log("Credit Requests API Response:", data);  // Debugging log
+                // console.log("Credit Requests API Response:", data);  // Debugging log
                 return data; // Ensure we're returning the entire response object
             } catch (error) {
                 console.error("API Fetch Error:", error);
@@ -77,9 +77,9 @@ const API = {
                 }
             });
         
-            const data = await response.json(); // ✅ Await JSON response
-            console.log("line->66 : ", data);
-            return data; // ✅ Return parsed JSON data
+            const data = await response.json(); // Await JSON response
+            // console.log("line->81 : ", data);
+            return data; // Return parsed JSON data
         }        
     }
 };
@@ -146,7 +146,7 @@ async function loadScanHistory(token) {
         const historyTableBody = document.getElementById('scanHistoryTableBody');
         
         historyTableBody.innerHTML = '';
-        console.log("line 112 -> scans data : ", scansData);
+        // console.log("line 112 -> scans data : ", scansData);
 
         // Ensure scansData is an array
         if (!Array.isArray(scansData)) {
@@ -200,7 +200,7 @@ async function refreshDashboard(token) {
 
 function updateDashboardStats(data) {
     document.getElementById('totalCreditsUsed').textContent = data.totalCreditsUsed;
-    
+    // console.log(data.totalCreditsUsed);
     const topTopicsDiv = document.getElementById('topTopics');
     topTopicsDiv.innerHTML = data.topTopics
         .map(topic => `<div class="topic-item">
@@ -293,7 +293,7 @@ async function handleScan(token) {
 async function loadCreditRequests(token) {
     try {
         const response = await API.admin.getCreditRequests(token);
-        console.log("API Response ->", response);  
+        // console.log("API Response ->", response);  
 
         // Ensure `response.data` is always an array
         const requestsData = Array.isArray(response.data) ? response.data : [response.data];
@@ -304,25 +304,42 @@ async function loadCreditRequests(token) {
         }
 
         const requestsList = document.getElementById('creditRequestsList');
+        const requestHistory = document.getElementById('creditHistoryList');
         requestsList.innerHTML = '';
+        requestHistory.innerHTML = '';
 
         // Filter only 'pending' requests
         const pendingRequests = requestsData.filter(req => req.status === 'pending');
+        const rejectedOrApprovedRequests = requestsData.filter(req => (req.status === 'rejected' || req.status==='approved'));
+        // console.log("rejected or appreoved requests : ",rejectedOrApprovedRequests[0].user_id);
+        // console.log("rejected or appreoved requests : ",rejectedOrApprovedRequests);
 
-        if (pendingRequests.length === 0) {
+        if (pendingRequests.length === 0 && rejectedOrApprovedRequests.length === 0 ) {
             requestsList.innerHTML = '<p>No pending credit requests.</p>';
+            requestHistory.innerHTML = '<p>No credit requests history is avaliable.</p>';
             return;
         }
-        console.log()
+
         pendingRequests.forEach(request => {
             const requestItem = document.createElement('div');
-            requestItem.classList.add('request-item');
+            requestItem.classList.add('request-item'); // .request-item add this className to request Items
             requestItem.innerHTML = `
                 <span>User : ${request.user_id}, requested ${request.credits_requested} credit</span>
                 <button class="approve-btn" onclick="event.preventDefault(); approveCredit(${request.user_id}, '${token}')">Approve</button>
                 <button class="reject-btn" onclick="event.preventDefault(); rejectCredit(${request.user_id}, '${token}')">Reject</button>
             `;
             requestsList.appendChild(requestItem);
+        });
+
+        rejectedOrApprovedRequests.forEach(request => {
+            const historyItem = document.createElement('div');
+            historyItem.classList.add('request-item');
+            historyItem.innerHTML = `
+            <span> User : ${request.user_id}</span>
+            <span> Credits_requested: ${request.credits_requested}</span>
+            <span> Status: ${request.status}</span>
+            `;
+            requestHistory.appendChild(historyItem);
         });
 
     } catch (error) {

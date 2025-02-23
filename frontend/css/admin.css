@@ -130,10 +130,14 @@ th {
     font-weight: 600;
 }
 
-/* Credit Requests */
-.credit-requests {
+/* Credit Requests 
+.requests-list
+.requests-list
+*/
+.credit-requests, .request-history {
     background: white;
     padding: 2rem;
+    margin:1.5rem;
     border-radius: 0.5rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }

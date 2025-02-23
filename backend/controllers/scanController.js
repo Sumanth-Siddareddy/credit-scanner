@@ -106,7 +106,7 @@ const getScansByUserId = async (req, res) => {
 
         // Fetch scans for the specified user
         const scans = await getAllQuery("SELECT * FROM scans WHERE user_id = ?", [user_id]);
-        console.log("scan controller : ", scans);
+        // console.log("scan controller : ", scans);
         res.json(scans);
     } catch (error) {
         console.error("Error fetching scans:", error);
