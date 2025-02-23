@@ -142,19 +142,20 @@ The frontend is divided into two primary modules:
 ## User Interface Screenshots
 
 ### Register
-![Register](/frontend/assets/UI_Images/Register.jpg)
+![Register](/frontend/assests/UI_Images/Register.jpg)
 
 ### Login
-![Login](frontend/assets/UI_Images/Login.jpg)
+![Login](/frontend/assests/UI_Images/Login.jpg)
 
 ### Admin Dashboard
-![Admin Dashboard](frontend/assets/UI_Images/Admin_DashBoard.jpg)
+![Admin Dashboard](/frontend/assests/UI_Images/Admin_DashBoard.jpg)
+
 ### Admin Document Scanning and scan history
-![Document Scanning for admin](frontend/assets/UI_Images/document_scan_and_history_for_admin.jpg)
+![Document Scanning for admin](/frontend/assests/UI_Images/document_scan_and_scan_history_for_admin.jpg)
+
 ### Admin credit request - approval, reject and credit requests history
-![credit requests approval or reject, request history](frontend/assets/UI_Images/credit_request_approval.jpg)
+![credit requests approval or reject, request history](/frontend/assests/UI_Images/credit_request_approval.jpg)
 
 ### User Profile - user details, scan document, credit request, scan history
-![User Profile](frontend/assets/UI_Images/User_profile.jpg)
-
-
+![User Profile](/frontend/assests/UI_Images/User_profile.jpg)
+>>>>>>> 267929f (added UI screenshots to README.md file)
