@@ -1,20 +1,139 @@
-# Day 1-2 : Project setup
-1. Install NodeJs and SQLite and setup
-2. Create a project folder & intialize with - npm init -y
-3. Install required packages npm install express sqlite3 bcryptjs jsonwebtoken multer cors dotenv
-4. Setup tables in database ( users, documents, credits ) 
-    for timestamps I used GMT format
-5. Setup a server, connect database.
-6. Create routes, middleware, models, config/database directories inside backend directory
-7. Create a frontend directory
+# Credit-Based Document Scanning System
 
-# Day 3-4 : Authentication and Role Management - user & admin
+This project is a full-stack document scanning and matching system with a built-in credit system. Each user receives 20 free scans per day, and additional scans require a credit request. 
+The project need to include bonus features such as an AI-powered document matching option, an admin dashboard with credit management, and a smart analytics dashboard.
 
-1. Implement JWT based authentication, password hasing.
-2. Roles -
-    Regular user ( can upload docs & view matches )
-    Admin ( can approve crdit request & view analytics)
-3. Create routes -
-    POST /auth/register 
-    POST /auth/login
-    GET /user/profile ( view profile and credits )
+## Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+  - [Completed Features](#completed-features)
+  - [Remaining Features](#remaining-features)
+- [API Endpoints](#api-endpoints)
+- [Frontend Integration](#frontend-integration)
+- [Setup & Installation](#setup--installation)
+- [Usage](#usage)
+- [Testing & Documentation](#testing--documentation)
+- [License](#license)
+
+## Overview
+
+This repository contains the source code for a credit-based document scanning system. The backend is built using [Node.js/Express](#) and uses SQLite (or JSON files for small-scale storage). The frontend is developed using HTML, CSS, and vanilla JavaScript (no frameworks). The system features user registration, authentication, a credit system, document scanning & matching, duplicate checking, and a smart admin analytics dashboard.
+
+## Features
+
+### Completed Features
+
+#### User Management & Authentication
+- **User Registration & Login**  
+  - Endpoints: `POST /auth/register`, `POST /auth/login`
+  - Token-based authentication is implemented.
+  - Handles duplicate usernames and invalid login credentials.
+
+#### Credit System
+- **Daily Free Credits**  
+  - Each user starts with 20 free credits per day.
+  - Admins have unlimited credits.
+- **Credit Balance & Deduction**  
+  - Endpoints: `GET /credits/balance`, `POST /credits/deduct`
+- **Credit Request Handling**  
+  - Endpoint: `POST /credits/request`
+  - Prevents duplicate pending credit requests.
+
+#### Document Scanning & Matching
+- **Document Scanning**  
+  - Endpoint: `POST /api/scan`
+  - Accepts files in PDF, JPG, PNG, or DOCX formats.
+  - Returns extracted text, topic, match status, and similarity score.
+- **Duplicate Check**  
+  - Endpoint: `POST /api/documents/check-duplicate`
+- **Document Matching**  
+  - Matching results are provided in the scan response.
+  - Fallback to TF-IDF is used when the AI service is down.
+
+#### User Activity & Scan History
+- **Scan History Retrieval**  
+  - Endpoint: `GET /api/scans?user_id={id}` (used by both admin and regular users)
+  - Displays scan date, filename, extracted text (truncated for display), topic, and match status.
+
+#### Admin Features
+- **Admin Dashboard & Details**  
+  - Endpoints: `GET /protected/admin`, `GET /api/admin/dashboard`
+- **Credit Request Management**  
+  - Endpoints: `GET /api/admin/credit-requests`, `POST /api/admin/approve/:userId`, `POST /api/admin/reject/:userId`, `POST /api/admin/set-credits/:userId`
+  - Admins can view pending credit requests with approve/reject options.
+- **Admin Document Scanning**  
+  - Admins use the same scan endpoint (`POST /api/scan`), with no credit deductions.
+
+#### Frontend Integration
+- **Admin Panel (`admin.js`):**  
+  - Fetches admin details, dashboard analytics, credit requests, and scan history.
+  - Implements functions to approve/reject credit requests and set user credits.
+- **User Profile (`profile.js`):**  
+  - Fetches user profile details and scan history.
+  - Implements document scanning with duplicate checks and credit requests.
+- **UI/UX:**  
+  - Responsive interfaces for both admin and regular users.
+  - Message pop-ups for notifications and error handling.
+
+### Remaining Features
+
+- **AI-Powered Document Matching (Bonus)**  
+  - Integrate a primary AI service (e.g., OpenAI, Gemini, or DeepSeek) to enhance document matching accuracy.
+  - Improve fallback logic and error handling for the matching process.
+ 
+- **Export Reports**  
+  - Implement functionality to export scan history and analytics reports (optional bonus).
+
+## API Endpoints
+
+### User Endpoints
+- **POST /auth/register**  
+  - Registers a new user.
+- **POST /auth/login**  
+  - Logs in a user and returns an authentication token.
+- **GET /protected/user/profile**  
+  - Retrieves the user profile, including credits and user ID.
+- **GET /credits/balance**  
+  - Retrieves the current credit balance.
+- **POST /credits/deduct**  
+  - Deducts 1 credit per document scan.
+- **POST /credits/request**  
+  - Requests additional 1 credit when the daily free credits are exhausted.
+- **POST /api/scan**  
+  - Scans a new document.
+- **POST /api/documents/check-duplicate**  
+  - Checks if the document has already been scanned.
+- **GET /api/scans?user_id={id}**  
+  - Retrieves scan history for the user.
+
+### Admin Endpoints
+- **GET /protected/admin**  
+  - Retrieves admin details.
+- **GET /api/admin/dashboard**  
+  - Retrieves analytics data (top topics, users, credit usage, total credits used).
+- **GET /api/admin/credit-requests**  
+  - Retrieves a list of pending and historical credit requests.
+- **POST /api/admin/approve/:userId**  
+  - Approves a credit request for a user.
+- **POST /api/admin/reject/:userId**  
+  - Rejects a credit request for a user.
+- **POST /api/admin/set-credits/:userId**  
+  - Manually sets or adjusts a user’s credit balance.
+- **POST /api/scan**  
+  - (Admin can also use the scanning endpoint; credits are not deducted for admin.)
+
+## Frontend Integration
+
+The frontend is divided into two primary modules:
+
+### Admin Panel (admin.js)
+- Fetches and displays admin details and dashboard analytics.
+- Manages credit requests with options to approve, reject, or set credits.
+- Provides document scanning functionality and displays scan history.
+
+### User Profile (profile.js)
+- Displays the user’s profile details (username, role, credits).
+- Allows users to upload documents for scanning.
+- Implements duplicate checking before scanning.
+- Enables users to request additional credits.
+- Displays scan history in a table format.
