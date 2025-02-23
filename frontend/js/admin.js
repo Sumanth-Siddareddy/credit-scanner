@@ -312,7 +312,7 @@ async function loadCreditRequests(token) {
         const pendingRequests = requestsData.filter(req => req.status === 'pending');
         const rejectedOrApprovedRequests = requestsData.filter(req => (req.status === 'rejected' || req.status==='approved'));
         // console.log("rejected or appreoved requests : ",rejectedOrApprovedRequests[0].user_id);
-        // console.log("rejected or appreoved requests : ",rejectedOrApprovedRequests);
+         console.log("rejected or appreoved requests : ",rejectedOrApprovedRequests);
 
         if (pendingRequests.length === 0 && rejectedOrApprovedRequests.length === 0 ) {
             requestsList.innerHTML = '<p>No pending credit requests.</p>';

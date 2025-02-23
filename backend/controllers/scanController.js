@@ -142,6 +142,8 @@ const scanDocument = async (req, res) => {
             extractedText = await extractTextFromImage(filePath);
         } else if (fileExtension === "docx") {
             extractedText = await extractTextFromDOCX(filePath);
+        } else if (fileExtension === "txt"){
+            extractedText = await extractTextFromTXT(filePath);
         } else {
             return res.status(400).json({ error: `${fileExtension} is an unsupported file type.` });
         }

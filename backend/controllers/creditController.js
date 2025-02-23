@@ -9,10 +9,10 @@ const runQuery = promisify(db.run).bind(db);
 const deductCredits = async (req, res) => {
     try {
         const userId = req.user.id; // Extract user ID from request
-        console.log("User ID extracted:", userId);
+        console.log("credit controller.js -> 12-> User ID extracted:", userId);
 
         // Get current user credits
-        const user = await getQuery("SELECT credits FROM users WHERE id = ?", [userId]);
+        const user = await getQuery("SELECT role, credits FROM users WHERE id = ?", [userId]);
 
         if (!user) {
             console.error(` No user found with ID ${userId}`);
@@ -22,8 +22,12 @@ const deductCredits = async (req, res) => {
         if (user.credits < 1) {
             return res.status(400).json({ error: "Insufficient credits. Please request more credits." });
         }
-
+        // console.log("user requested to deduct : ",user.role);
         // Deduct one credit
+        if(user.role === 'admin'){ // if user is admin it will not deduct credits
+            return res.json({ success: true, remaining_credits: user.credits });
+        }
+
         await updateQuery("UPDATE users SET credits = credits - 1 WHERE id = ?", [userId]);
 
         // Get updated credits
