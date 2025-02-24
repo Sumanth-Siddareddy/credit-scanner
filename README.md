@@ -158,4 +158,3 @@ The frontend is divided into two primary modules:
 
 ### User Profile - user details, scan document, credit request, scan history
 ![User Profile](/frontend/assests/UI_Images/User_profile.jpg)
->>>>>>> 267929f (added UI screenshots to README.md file)
