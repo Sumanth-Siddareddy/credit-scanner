@@ -9,7 +9,7 @@
     
         // DOM Elements
         const usernameElements = document.querySelectorAll('#username, #profileUsername');
-        const userRoleElements = document.querySelectorAll('#userRole, #profileRole');
+        const userRoleElements = document.querySelectorAll('#profileRole');
         const profileCredits = document.getElementById('profileCredits');
         const totalScans = document.getElementById('totalScans');
         const uploadForm = document.getElementById('uploadForm');
@@ -42,11 +42,11 @@
                 if (!response.ok) throw new Error('Failed to fetch user profile');
         
                 const data = await response.json();
-                const { username, role, credits, id } = data.profile;
+                const { username, credits, id } = data.profile;
         
                 // Update UI elements
                 usernameElements.forEach(el => el.textContent = username);
-                userRoleElements.forEach(el => el.textContent = role);
+                userRoleElements.forEach(el => el.textContent = id);
                 profileCredits.textContent = credits;
         
                 // Fetch scans history
@@ -82,9 +82,9 @@
                 
                         // Truncate long text for display
                         const maxLength = 500;
-                        let displayText = cleanedText.length > maxLength 
-                            ? cleanedText.substring(0, maxLength) + "..." 
-                            : cleanedText;
+                        let displayText = scan.extracted_text.length > maxLength 
+                            ? scan.extracted_text.substring(0, maxLength) + "..." 
+                            : scan.extracted_text;
                 
                         // Create table row
                         const row = document.createElement('tr');
@@ -92,7 +92,7 @@
                             <td>${new Date(scan.scan_date).toLocaleDateString()}</td>
                             <td>${scan.filename}</td>
                             <td>${scan.match_status}</td>
-                            <td title="${cleanedText}">${displayText}</td>
+                            <td title="${scan.extracted_text}">${displayText}</td>
                             <td>${scan.topic}</td>
                         `;
                 

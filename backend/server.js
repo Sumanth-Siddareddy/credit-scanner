@@ -55,3 +55,44 @@ app.listen(PORT, () => {
 });
 
 module.exports = app; // export app for testing
+
+// ------------------------------------------------------------------------------
+
+// const PORTS = [5000, 5001, 5002]; // List of ports to run on
+
+// PORTS.forEach((port) => {
+//     const app = express();
+
+//     app.use(cors());
+//     app.use(express.json());
+//     app.use(bodyParser.urlencoded({ extended: true }));
+//     app.use((req, res, next) => {
+//       // console.log(`Incoming request: ${req.method} ${req.url}`);
+//       //console.log('Headers:', req.headers);
+//       //console.log('Body:', req.body);
+//       next();
+//     });
+
+//     // Schedule the credit reset job (Runs every day at 12:00 AM IST)
+//     // Start credit reset function at server startup
+//     resetDailyCredits();
+
+//     // Routes
+//     app.use("/auth", authRoutes);
+//     app.use("/protected", protectedRoutes);
+//     app.use("/credits", creditRoutes);
+//     app.use("/api", scanRoutes);
+//     app.use("/api/admin", adminRoutes);
+//     app.use("/api/user", userRoutes); // GET /api/user/export-scans is actual endpoint
+//     app.use("/api/scan", scanRoutes);
+//     app.use("/api/documents", documentRoutes); 
+
+//     app.get("/", (req, res) => {
+//         res.send(`Server running on port ${port}`);
+//     });
+
+//     app.listen(port, () => {
+//         console.log(`Server running on http://localhost:${port}`);
+//     });
+//     module.exports = app;
+// });

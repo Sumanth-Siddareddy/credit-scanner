@@ -47,6 +47,16 @@ const extractTextFromImage = async (filePath) => {
     }
 };
 
+// Function to extract text from TXT files
+const extractTextFromTXT = async (filePath) => {
+    try {
+        return fs.readFileSync(filePath, "utf8");
+    } catch (error) {
+        console.error("TXT File Reading Error:", error);
+        return "";
+    }
+};
+
 // calculate similarity of input document and exsisting one
 const calculateSimilarity = (text1, text2) => {
     const words1 = new Set(text1.toLowerCase().split(/\s+/));
