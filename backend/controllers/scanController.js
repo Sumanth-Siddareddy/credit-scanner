@@ -78,7 +78,11 @@ const findMatches = async (text, userId) => {
     try {
         const sanitizedText = sanitizeText(text.toLowerCase());
         
-        const keywords = ["invoice", "receipt", "bill", "contract", "diet", "nutrition"]; // Expand keywords
+        const keywords = ["invoice", "receipt", "bill", "contract", "diet", "nutrition",
+                         "exercise", "sports", "workout", "finance", "money", "tax", 
+                         "entertainment", "thecnical", "AI", "ML", "deep learning",
+                        "rating", "travel", "plans", "routine", "fitness", "reading",
+                         "writing", "learning"]; // Expand keywords
         const matches = sanitizedText.match(new RegExp(`\\b(${keywords.join("|")})\\b`, "gi")) || [];
         
         console.log("Sanitized Text:", sanitizedText);
