@@ -6,13 +6,12 @@ The project includes an admin dashboard with credit management, and a smart anal
 ## Table of Contents
 - [Overview](#overview)
 - [Features](#features)
-  - [Completed Features](#completed-features)
-  - [Future work](#Future-work)
 - [API Endpoints](#api-endpoints)
 - [Frontend Integration](#frontend-integration)
 - [Setup & Installation](#setup--installation)
 - [Usage](#usage)
 - [Testing & Documentation](#testing--documentation)
+- [Future work](#Future-work)
 - [License](#license)
 
 ## Overview
@@ -20,8 +19,6 @@ The project includes an admin dashboard with credit management, and a smart anal
 This repository contains the source code for a credit-based document scanning system. The backend is built using [Node.js/Express](#) and uses SQLite (or JSON files for small-scale storage). The frontend is developed using HTML, CSS, and vanilla JavaScript (no frameworks). The system features user registration, authentication, a credit system, document scanning & matching, duplicate checking, and a smart admin analytics dashboard.
 
 ## Features
-
-### Completed Features
 
 #### User Management & Authentication
 - **User Registration & Login**  
@@ -74,15 +71,6 @@ This repository contains the source code for a credit-based document scanning sy
 - **UI/UX:**  
   - Responsive interfaces for both admin and regular users.
   - Message pop-ups for notifications and error handling.
-
-### Future work
-
-- **AI-Powered Document Matching (Bonus)**  
-  - Integrate a primary AI service (e.g., OpenAI, Gemini, or DeepSeek) to enhance document matching accuracy.
-  - Improve fallback logic and error handling for the matching process.
- 
-- **Export Reports**  
-  - Implement functionality to export scan history and analytics reports (optional bonus).
 
 ## API Endpoints
 
@@ -158,3 +146,12 @@ The frontend is divided into two primary modules:
 
 ### User Profile - user details, scan document, credit request, scan history
 ![User Profile](/frontend/assests/UI_Images/User_profile.jpg)
+
+### Future work
+
+- **AI-Powered Document Matching (Bonus)**  
+  - Integrate a primary AI service (e.g., OpenAI, Gemini, or DeepSeek) to enhance document matching accuracy.
+  - Improve fallback logic and error handling for the matching process.
+ 
+- **Export Reports**  
+  - Implement functionality to export scan history and analytics reports (optional bonus).
