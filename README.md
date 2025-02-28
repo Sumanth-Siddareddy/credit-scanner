@@ -147,8 +147,8 @@ The frontend is divided into two primary modules:
 ### Future work
 
 - **AI-Powered Document Matching (Bonus)**  
-  - Integrate a primary AI service (e.g., OpenAI, Gemini, or DeepSeek) to enhance document matching accuracy.
+  - Improve primary AI service (e.g., OpenAI, Gemini, or DeepSeek) to enhance document matching accuracy.
   - Improve fallback logic and error handling for the matching process.
  
 - **Export Reports**  
-  - Implement functionality to export scan history and analytics reports (optional bonus).
+  - Implement functionality to export scan history and analytics reports.
