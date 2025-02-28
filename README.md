@@ -1,7 +1,7 @@
 # Credit-Based Document Scanning System
 
 This project is a full-stack document scanning and matching system with a built-in credit system. Each user receives 20 free scans per day, and additional scans require a credit request. 
-The project includes an admin dashboard with credit management, and a smart analytics dashboard.
+The project includes an admin dashboard with credit management, and a smart analytics dashboard. User dashboard - user can view their details, upload and scan documents, view scan history.
 
 ## Table of Contents
 - [Overview](#overview)
