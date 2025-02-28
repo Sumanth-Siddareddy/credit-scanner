@@ -10,7 +10,6 @@ The project includes an admin dashboard with credit management, and a smart anal
 - [Frontend Integration](#frontend-integration)
 - [UI of Admin and User Dashboards](#User-Interface-Screenshots)
 - [Future work](#Future-work)
-- [License](#license)
 
 ## Overview
 
