@@ -7,7 +7,7 @@ The project includes an admin dashboard with credit management, and a smart anal
 - [Overview](#overview)
 - [Features](#features)
   - [Completed Features](#completed-features)
-  - [Remaining Features](#remaining-features)
+  - [Future work](#Future work)
 - [API Endpoints](#api-endpoints)
 - [Frontend Integration](#frontend-integration)
 - [Setup & Installation](#setup--installation)
@@ -75,7 +75,7 @@ This repository contains the source code for a credit-based document scanning sy
   - Responsive interfaces for both admin and regular users.
   - Message pop-ups for notifications and error handling.
 
-### Remaining Features
+### Future work
 
 - **AI-Powered Document Matching (Bonus)**  
   - Integrate a primary AI service (e.g., OpenAI, Gemini, or DeepSeek) to enhance document matching accuracy.
